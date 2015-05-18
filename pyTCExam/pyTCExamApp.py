@@ -67,9 +67,9 @@ class FrameMain(wx.Frame):
     #----------------------------------------------------------------------
     def __init__(self, parent):
         # always on top
-        #wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP)
+        wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP)
         # normalno
-        wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE, size=(1000, 800))
+        #wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE, size=(1000, 800))
 
         # database object
         self.db = pyTCExamMySQL.DbMySQL("localhost", "root", "passww", "tcexam")
@@ -227,11 +227,11 @@ class App(wx.App):
     def OnInit(self):
         self.frame = FrameMain(parent=None)
         # produkcija - odkomentirati
-        #self.frame.ShowFullScreen(show=True)
+        self.frame.ShowFullScreen(show=True)
 
         # develop - zakomentirati
-        self.frame.Center(direction=wx.BOTH)
-        self.frame.Show()
+        #self.frame.Center(direction=wx.BOTH)
+        #self.frame.Show()
 
         self.SetTopWindow(frame=self.frame)
         return True
