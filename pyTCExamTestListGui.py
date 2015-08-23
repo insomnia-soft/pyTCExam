@@ -33,7 +33,7 @@ class PanelTestList(wx.Panel):
         self.listCtrlTests.InsertColumn(col=0, heading="Ispit", width=300)
         self.listCtrlTests.InsertColumn(col=1, heading="Od", width=150)
         self.listCtrlTests.InsertColumn(col=2, heading="Do", width=150)
-        #self.listCtrlTests.InsertColumn(col=3, heading="Status", width=200)
+        self.listCtrlTests.InsertColumn(col=3, heading="Status", width=200)
 
         # gumb refresh tests
         buttonRefreshTests = wx.Button(parent=self, id=wx.NewId(), label="Dohvati ispite", size=(200, 25))

@@ -71,7 +71,7 @@ class TestList:
             currentTest['test_repeatable'] = row['test_repeatable']
             currentTest['test_password'] = row['test_password']
             currentTest['status'] = 0
-            currentTest['status_msg'] = ""
+            currentTest['status_msg'] = u"Ispit je omogućen za rješavanje"
             currentTest['status_color'] = 0
             currentTest['expired'] = False
             # TCExam legal values are:
@@ -86,6 +86,7 @@ class TestList:
             if currentTime > testEndTime:
                 currentTest['status_color'] = 4
                 currentTest['expired'] = True
+                currentTest['status_msg'] = u"Rok za rješavanje ispita je istekao"
                 testExpired = True
 
             # status ispita
