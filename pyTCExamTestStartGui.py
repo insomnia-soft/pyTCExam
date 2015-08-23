@@ -16,8 +16,8 @@ class PanelTestStart(wx.Panel):
         self.__testInfo = {}
 
         # definiranje stilova teksta
-        fontNormal = wx.Font(pointSize=11, family=wx.SWISS, style=wx.NORMAL, weight=wx.NORMAL)
-        fontBold = wx.Font(pointSize=11, family=wx.SWISS, style=wx.NORMAL, weight=wx.BOLD)
+        fontNormal = wx.Font(pointSize=10, family=wx.SWISS, style=wx.NORMAL, weight=wx.NORMAL)
+        fontBold = wx.Font(pointSize=10, family=wx.SWISS, style=wx.NORMAL, weight=wx.BOLD)
 
         self.infoTextNames = pyTCExamCommon.getInfoNames()
 
@@ -36,7 +36,7 @@ class PanelTestStart(wx.Panel):
         self.infoStaticText = {}
 
         for name in self.infoTextNames:
-            tmp = wx.StaticText(parent=self, id=-1, size=(150, -1), style=wx.ALIGN_RIGHT, label=name[1])
+            tmp = wx.StaticText(parent=self, id=-1, size=(300, -1), style=wx.ALIGN_RIGHT, label=name[1])
             tmp.SetFont(fontNormal)
             self.infoStaticText[name[0]] = wx.StaticText(parent=self, id=-1)
             self.infoStaticText[name[0]].SetFont(fontBold)
@@ -74,11 +74,20 @@ class PanelTestStart(wx.Panel):
 
     #----------------------------------------------------------------------
     def loadTestData(self):
-
-        self.staticTextTestName.SetLabel(str(self.__testObject._testInfo['test_name']))
-        self.staticTextTestDescription.SetLabel(str(self.__testObject._testInfo['test_description']))
+        self.staticTextTestName.SetLabel(self.__testObject._testInfo['test_name'])
+        self.staticTextTestDescription.SetLabel(self.__testObject._testInfo['test_description'])
         for name in pyTCExamCommon.getInfoNames():
-            self.infoStaticText[name[0]].SetLabel(str(self.__testObject._testInfo[name[0]]))
+            txt = ""
+            if (name[0] == "test_results_to_users" or
+                name[0] == "test_report_to_users" or
+                name[0] == "test_repeatable"):
+                if self.__testObject._testInfo[name[0]] == 1:
+                    txt = "da"
+                else:
+                    txt = "ne"
+            else:
+                txt = str(self.__testObject._testInfo[name[0]])
+            self.infoStaticText[name[0]].SetLabel(txt)
 
 
     #----------------------------------------------------------------------
