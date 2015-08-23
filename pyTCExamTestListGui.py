@@ -110,9 +110,11 @@ class PanelTestList(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.__onButtonTestReport, self.buttonTestReport)
         self.Bind(wx.EVT_BUTTON, self.__onButtonLogoff, self.buttonLogoff)
 
+
     #----------------------------------------------------------------------
     def __onButtonRefreshTests(self, event):
         self.refreshTests()
+
 
     #----------------------------------------------------------------------
     def refreshTests(self):
@@ -131,6 +133,7 @@ class PanelTestList(wx.Panel):
             self.listCtrlTests.SetItemData(item=index, data=testId)
             index += 1
 
+
     #----------------------------------------------------------------------
     def __resetInfoWidgets(self):
         self.staticTextTestName.SetLabel("")
@@ -141,6 +144,7 @@ class PanelTestList(wx.Panel):
         self.buttonContinueTest.Disable()
         self.buttonRepeatTest.Disable()
         self.buttonTestReport.Disable()
+
 
     #----------------------------------------------------------------------
     def __onSelectTest(self, event):
@@ -172,11 +176,13 @@ class PanelTestList(wx.Panel):
             else:
                 self.infoStaticText[name[0]].SetLabel(str(self.__tests[self.selectedTestId][name[0]]))
 
+
     #----------------------------------------------------------------------
     def __onDeselectTest(self, event):
         self.__resetInfoWidgets()
         self.selectedTestId = 0
         event.Skip()
+
 
     #----------------------------------------------------------------------
     def __onClearTestList(self, event):
@@ -184,32 +190,32 @@ class PanelTestList(wx.Panel):
         self.selectedTestId = 0
         event.Skip()
 
+
     #----------------------------------------------------------------------
     def __onButtonLogoff(self, event):
         self.__parent.userLogoff()
         event.Skip()
+
 
     #----------------------------------------------------------------------
     def __onButtonExecuteTest(self, event):
         self.__parent.initTest()
         event.Skip()
 
+
     #----------------------------------------------------------------------
     def __onButtonContinueTest(self, event):
         self.__parent.continueTest()
         event.Skip()
+
 
     #----------------------------------------------------------------------
     def __onButtonRepeatTest(self, event):
         self.__parent.repeatTest()
         event.Skip()
 
+
     #----------------------------------------------------------------------
     def __onButtonTestReport(self, event):
         self.__parent.showReport()
         event.Skip()
-
-
-#----------------------------------------------------------------------
-if __name__ == '__main__':
-    pyTCExam.main()

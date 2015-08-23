@@ -1079,7 +1079,3 @@ class Test:
                         testStatus = 3
 
         return (testStatus, testUserId)
-
-
-if __name__ == "__main__":
-    pyTCExam.main()

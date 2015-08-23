@@ -10,8 +10,12 @@ import pyTCExamTest
 import pyTCExamCommon
 import pyTCExamHtmlWindowQuestionGui as question_gui
 
-
+#----------------------------------------------------------------------
+#----------------------------------------------------------------------
+#----------------------------------------------------------------------
 class WindowTimer(wx.Window):
+
+    #----------------------------------------------------------------------
     def __init__(self, parent):
         wx.Window.__init__(self, parent=parent, id=wx.NewId(), size=(400, -1))
         self.Bind(event=wx.EVT_PAINT, handler=self.__onPaint)
@@ -350,8 +354,3 @@ class PanelTest(wx.Panel):
             old = self.windowTimerCountdown.getText()
             if time != old:
                 self.windowTimerCountdown.drawTime(time)
-
-
-#----------------------------------------------------------------------
-if __name__ == '__main__':
-    pyTCExam.main()

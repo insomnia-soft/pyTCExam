@@ -6,12 +6,12 @@
 import re
 import mysql.connector
 from mysql.connector import Error
-# dev
 import pyTCExamCommon
 
 class DbMySQL(object):
-    def __init__(self, host, username, password, database):
+    def __init__(self, host, port, username, password, database):
         self.host = host
+        self.port = port
         self.username = username
         self.password = password
         self.database = database
@@ -22,6 +22,7 @@ class DbMySQL(object):
             self.con = mysql.connector.connect(user=self.username,
                                                 password=self.password,
                                                 host=self.host,
+                                                port=self.port,
                                                 database=self.database,
                                                 autocommit=True,
                                                 charset='utf8')
@@ -36,9 +37,6 @@ class DbMySQL(object):
         return 0
 
     def query(self, sql, data=()):
-        #print "-- # python ----------" + pyTCExamCommon.getCurrentTime(1)
-        #print sql
-        #print data
         self.cursor = self.con.cursor(dictionary=True)
         self.cursor.execute(sql, params=data)
 

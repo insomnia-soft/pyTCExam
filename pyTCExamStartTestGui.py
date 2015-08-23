@@ -82,8 +82,6 @@ class PanelTestStart(wx.Panel):
             self.infoStaticText[name[0]].SetLabel(str(self.__testInfo[name[0]]))
 
     #----------------------------------------------------------------------
-    # tu bi se dalo popraviti
-    # pogledaj u Test klasu zakomentiranu metodu
     def __onButtonContinue(self, event):
         if self.__testInfo['test_password'] != None:
             dlgGetPw = wx.PasswordEntryDialog(self, u'Upiši lozinku za pristup ispitu:', u'Ispit', "12345678")

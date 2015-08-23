@@ -29,6 +29,7 @@ class PanelTestReport(wx.Panel):
         self.SetSizer(vsizer1)
         self.Hide()
 
+
     #----------------------------------------------------------------------
     def initUi(self, __user, __test):
         created = None
@@ -293,9 +294,7 @@ class PanelTestReport(wx.Panel):
 
         self.htmlWindowTestReport.SetPage(out)
 
+
     #----------------------------------------------------------------------
     def onButtonClose(self, event):
         self.__parent.closeReport()
-
-if __name__ == '__main__':
-    pyTCExam.main()

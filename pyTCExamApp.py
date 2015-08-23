@@ -1,54 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# problemi:
-# - ne vidi se ko je ulogiran, zbog sesije
-# - ssl?
-# - drugi načini ulogiravanja?
-# - ip adresa?
-
 # todo
 #   gumbi se trebaju zvati sa IDom pitanja
 #   ostale opcije testa (checkbox za MCMA, ...)
 #   test report - bodovi
 #   ako komentar nije enablean, ...
 
-# reference:
-# http://www.wxpython.org/docs/api/wx.Colour-class.html
-# http://www.blog.pythonlibrary.org/2011/01/04/wxpython-wx-listctrl-tips-and-tricks/
-# http://wxpython.org/Phoenix/docs/html/ListCtrl.html  <---- eventovi!!!
-# http://wxpython-users.1045709.n5.nabble.com/wxPython-Listcontrol-GetItemData-td2276631.html <----- getdata
-# http://www.blog.pythonlibrary.org/2010/06/16/wxpython-how-to-switch-between-panels/
-# http://www.blog.pythonlibrary.org/2013/07/12/wxpython-making-your-frame-maximize-or-full-screen/
-# ctrl+alt+del http://superuser.com/questions/740679/catching-ctrl-alt-delete
-# ctrl+alt+del linux: http://unix.stackexchange.com/questions/153902/disabling-ctrl-alt-del-and-etc-init
-# font: http://www.wxpython.org/docs/api/wx.Font-class.html
-# font: http://www.blog.pythonlibrary.org/2011/04/28/wxpython-learning-to-use-fonts/
-# http://stackoverflow.com/questions/6340362/redirecting-key-events-of-child-widgets-to-their-parent-frame-widget
-# alttab http://markmail.org/message/b6t6ldf3f3gl66gg#query:+page:1+mid:on3tlpd553mkdi2i+state:results
-# unicode: http://stackoverflow.com/questions/8365660/python-mysql-unicode-and-encoding
-# add controls: http://www.blog.pythonlibrary.org/2012/05/05/wxpython-adding-and-removing-widgets-dynamically/
-# scrolled window:
-#   http://wxpython-users.1045709.n5.nabble.com/ScrolledWindow-sizing-issues-td2352337.html
-# htmlwindow tagovi 2015-05-04
-#   http://wxpython.org/Phoenix/docs/html/html_overview.html
-# remove flickering (timer)2015-05-08
-#   http://www.java2s.com/Tutorial/Python/0380__wxPython/Usetimer.htm
-# hotkeys
-#   http://wiki.wxpython.org/RegisterHotKey -> loše
-#   http://jeffhoogland.blogspot.com/2014/10/pyhook-for-linux-with-pyxhook.html -> linux
-#   http://sourceforge.net/p/pyhook/wiki/PyHook_Tutorial/ -> win
-# self.Raise() 2015-05-10
-#   https://groups.google.com/forum/#!topic/wxpython-users/zuz6pfQoxes
-# AcceleratorTable 2015-05-10
-#   http://www.wxpython.org/docs/api/wx.AcceleratorTable-class.html
-#   http://markmail.org/message/kgdizhwtkajntpnu
-# pyHook
-#
 
-import pyHook
 import wx
 import pyTCExam
+import pyTCExamConf
 import pyTCExamMySQL
 import pyTCExamUser
 import pyTCExamTest
@@ -68,13 +30,23 @@ class FrameMain(wx.Frame):
     def __init__(self, parent):
         # always on top
         wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP)
-        # normalno
-        #wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE, size=(1000, 800))
+
+        # bez always on top
+        # wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE, size=(1000, 800))
+
+        # configuration
+        conf = pyTCExamConf.pyTCExamConf()
 
         # database object
-        self.db = pyTCExamMySQL.DbMySQL("localhost", "root", "passww", "tcexam")
+        self.db = pyTCExamMySQL.DbMySQL(conf.getDbHost(),
+                                        conf.getDbPort(),
+                                        conf.getDbUser(),
+                                        conf.getDbPassword(),
+                                        conf.getDbName())
+
         # user object
         self.user = pyTCExamUser.User(self.db)
+
         # test object
         self.test = pyTCExamTest.Test(self.db)
 
@@ -96,10 +68,6 @@ class FrameMain(wx.Frame):
         # bind close event
         self.Bind(wx.EVT_CLOSE, self.__onCloseWindow)
 
-        # keyboard hook, left+right win key, left+right control, left+right alt, tab, f4
-        self.hook = pyHook.HookManager()
-        self.hook.KeyDown = self.onKeyboardEvent
-        self.hook.HookKeyboard()
 
     #----------------------------------------------------------------------
     def onKeyboardEvent(self, event):
@@ -201,12 +169,6 @@ class FrameMain(wx.Frame):
 
     #----------------------------------------------------------------------
     def __onCloseWindow(self, event):
-        """
-        Method called by EVT_CLOSE event.
-
-        Args:
-            event
-        """
         self.appClose()
 
 
@@ -216,9 +178,6 @@ class FrameMain(wx.Frame):
         self.panelTest.timerCountdown.Stop()
         # destroy the timer
         self.panelTest.timerCountdown.Destroy()
-        # remove keyboard hook
-        self.hook.UnhookKeyboard()
-        # destroy frame
         self.Destroy()
 
 
@@ -226,17 +185,12 @@ class FrameMain(wx.Frame):
 class App(wx.App):
     def OnInit(self):
         self.frame = FrameMain(parent=None)
-        # produkcija - odkomentirati
+        # full screen
         self.frame.ShowFullScreen(show=True)
 
-        # develop - zakomentirati
-        #self.frame.Center(direction=wx.BOTH)
-        #self.frame.Show()
+        # no full screen
+        # self.frame.Center(direction=wx.BOTH)
+        # self.frame.Show()
 
         self.SetTopWindow(frame=self.frame)
         return True
-
-
-#----------------------------------------------------------------------
-if __name__ == '__main__':
-    pyTCExam.main()

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import wx
+import pyTCExamConf
 import pyTCExamTestList
 
 #----------------------------------------------------------------------
@@ -13,9 +14,12 @@ class PanelLogin(wx.Panel):
     def __init__(self, parent, db, user):
         wx.Panel.__init__(self, parent=parent, id=wx.NewId())
 
+        conf = pyTCExamConf.pyTCExamConf()
+
         self.__parent = parent
         self.__db = db
         self.__user = user
+        self.__userLevelForExit = conf.getUserLevelForExit()
 
         loginUsernameLabel = wx.StaticText(parent=self, id=wx.NewId(), size=(100, -1), label=u"Korisničko ime:", style=wx.ALIGN_RIGHT)
         self.textCtrlUsername = wx.TextCtrl(parent=self, id=wx.NewId(), size=(150, -1))
@@ -48,15 +52,12 @@ class PanelLogin(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.__onClickLogin, buttonLogin)
         self.Bind(wx.EVT_BUTTON, self.__onClickExit, buttonExit)
 
-        # obrisati za produkciju
-        self.textCtrlUsername.SetValue("johndoe")
-        self.textCtrlPassword.SetValue("12345678")
 
     #----------------------------------------------------------------------
-    def __userLogin(self):
+    def __userLogin(self, reportError=True):
+        msg = ""
         username = self.textCtrlUsername.GetValue()
         password = self.textCtrlPassword.GetValue()
-        msg = ""
 
         if len(username) == 0 or len(password) == 0:
             msg = u"Potrebno je upisati korisničko ime i lozinku za prijavu!"
@@ -64,17 +65,29 @@ class PanelLogin(wx.Panel):
             msg = u"Prijava neuspješna!"
 
         if len(msg):
-            wx.MessageBox(message=msg, caption=u"Prijava korisnika", style=wx.OK | wx.ICON_ERROR)
+            if reportError == True:
+                wx.MessageBox(message=msg, caption=u"Prijava korisnika", style=wx.OK | wx.ICON_ERROR)
+            return False
         else:
-            self.GetParent().userLogin()
+            return True
+
 
     #----------------------------------------------------------------------
     def __onClickLogin(self, event):
-        self.__userLogin()
+        if self.__userLogin() == True:
+            self.GetParent().userLogin()
+
+
+    #----------------------------------------------------------------------
+    def __isAdmin(self):
+        if self.__userLogin(False) == True and self.__userLevelForExit >= self.__user.level:
+            return True
+        else:
+            wx.MessageBox(message=u"Nemate privilegiju ugasiti aplikaciju!", caption=u"Izlaz", style=wx.OK | wx.ICON_ERROR)
+            return False
+
 
     #----------------------------------------------------------------------
     def __onClickExit(self, event):
-        self.GetParent().appClose()
-
-
-
+        if self.__isAdmin() == True:
+            self.GetParent().appClose()

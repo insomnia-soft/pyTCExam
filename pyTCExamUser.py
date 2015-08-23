@@ -17,6 +17,7 @@ class User(object):
         self.firstName = ""
         self.lastName = ""
         self.loginName = ""
+        self.userLevel = 0
         self.db = db
 
     #----------------------------------------------------------------------
@@ -40,6 +41,7 @@ class User(object):
             self.password = password
             self.firstName = row["user_firstname"]
             self.lastName = row["user_lastname"]
+            self.userLevel = int(row['user_level'])
             return True
 
         return False

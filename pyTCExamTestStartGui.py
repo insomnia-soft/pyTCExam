@@ -31,14 +31,14 @@ class PanelTestStart(wx.Panel):
         # opis ispita
         self.staticTextTestDescription = wx.StaticText(parent=self)
         self.staticTextTestDescription.SetFont(fontNormal)
-        self.staticTextTestDescription.SetForegroundColour("#003399")
+        self.staticTextTestDescription.SetBackgroundColour("#E0E0E0")
 
         self.infoStaticText = {}
 
         for name in self.infoTextNames:
-            tmp = wx.StaticText(parent=self, id=-1, size=(300, -1), style=wx.ALIGN_RIGHT, label=name[1])
+            tmp = wx.StaticText(parent=self, id=-1, size=(150, -1), style=wx.ALIGN_RIGHT, label=name[1])
             tmp.SetFont(fontNormal)
-            self.infoStaticText[name[0]] = wx.StaticText(parent=self, id=-1, size=(300, -1))
+            self.infoStaticText[name[0]] = wx.StaticText(parent=self, id=-1)
             self.infoStaticText[name[0]].SetFont(fontBold)
             fgsizer1.Add(tmp)
             fgsizer1.Add(self.infoStaticText[name[0]])
@@ -71,6 +71,7 @@ class PanelTestStart(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.__onButtonContinue, buttonContinue)
         self.Bind(wx.EVT_BUTTON, self.__onButtonCancel, buttonCancel)
 
+
     #----------------------------------------------------------------------
     def loadTestData(self):
 
@@ -78,6 +79,7 @@ class PanelTestStart(wx.Panel):
         self.staticTextTestDescription.SetLabel(str(self.__testObject._testInfo['test_description']))
         for name in pyTCExamCommon.getInfoNames():
             self.infoStaticText[name[0]].SetLabel(str(self.__testObject._testInfo[name[0]]))
+
 
     #----------------------------------------------------------------------
     def __onButtonContinue(self, event):
@@ -94,9 +96,11 @@ class PanelTestStart(wx.Panel):
         else:
             self.__startTest()
 
+
     #----------------------------------------------------------------------
     def __onButtonCancel(self, event):
         self.GetParent().initTestCancel()
+
 
     #----------------------------------------------------------------------
     def __startTest(self):
