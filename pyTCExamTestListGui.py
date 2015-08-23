@@ -25,16 +25,15 @@ class PanelTestList(wx.Panel):
         self.__tests = {}
 
         # definiranje stilova teksta
-        fontNormal = wx.Font(pointSize=11, family=wx.SWISS, style=wx.NORMAL, weight=wx.NORMAL)
-        fontBold = wx.Font(pointSize=11, family=wx.SWISS, style=wx.NORMAL, weight=wx.BOLD)
+        fontNormal = wx.Font(pointSize=10, family=wx.SWISS, style=wx.NORMAL, weight=wx.NORMAL)
+        fontBold = wx.Font(pointSize=10, family=wx.SWISS, style=wx.NORMAL, weight=wx.BOLD)
 
         # ListCtrl sa popisom ispita
         self.listCtrlTests = wx.ListCtrl(parent=self, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
         self.listCtrlTests.InsertColumn(col=0, heading="Ispit", width=300)
         self.listCtrlTests.InsertColumn(col=1, heading="Od", width=150)
         self.listCtrlTests.InsertColumn(col=2, heading="Do", width=150)
-        self.listCtrlTests.InsertColumn(col=3, heading="Status", width=200)
-        self.listCtrlTests.InsertColumn(col=4, heading="Akcija", width=300)
+        #self.listCtrlTests.InsertColumn(col=3, heading="Status", width=200)
 
         # gumb refresh tests
         buttonRefreshTests = wx.Button(parent=self, id=wx.NewId(), label="Dohvati ispite", size=(200, 25))
