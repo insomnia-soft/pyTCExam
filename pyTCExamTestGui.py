@@ -10,46 +10,6 @@ import pyTCExamTest
 import pyTCExamCommon
 import pyTCExamHtmlWindowQuestionGui as question_gui
 
-#----------------------------------------------------------------------
-#----------------------------------------------------------------------
-#----------------------------------------------------------------------
-class WindowTimer(wx.Window):
-
-    #----------------------------------------------------------------------
-    def __init__(self, parent):
-        wx.Window.__init__(self, parent=parent, id=wx.NewId(), size=(400, -1))
-        self.Bind(event=wx.EVT_PAINT, handler=self.__onPaint)
-        self.__text = ""
-
-
-    #----------------------------------------------------------------------
-    def __onPaint(self, event):
-        dc = wx.BufferedPaintDC(window=self)
-        self.__drawTime(dc)
-
-
-    #----------------------------------------------------------------------
-    def __drawTime(self, dc):
-        dc.SetBackground(wx.Brush(self.GetBackgroundColour()))
-        dc.Clear()
-        dc.SetFont(wx.Font(16, wx.SWISS, wx.NORMAL, wx.BOLD))
-        dc.SetTextForeground("#FF0000")
-        w, h = dc.GetSize()
-        tw, th = dc.GetTextExtent(self.__text)
-        dc.DrawText(self.__text, w-tw, 0)
-
-
-    #----------------------------------------------------------------------
-    def drawTime(self, text):
-        dc = wx.BufferedDC(wx.ClientDC(win=self))
-        self.__text = text
-        self.__drawTime(dc)
-
-
-    #----------------------------------------------------------------------
-    def getText(self):
-        return self.__text
-
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
@@ -75,9 +35,14 @@ class PanelTest(wx.Panel):
         self.staticTextTestTitle = wx.StaticText(parent=self, id=wx.NewId())
         self.staticTextTestTitle.SetForegroundColour("#003399")
         self.staticTextTestTitle.SetFont(fontBlue)
-        self.windowTimerCountdown = WindowTimer(self)
+
+        self.staticTextTimerCountdown = wx.StaticText(parent=self, id=wx.NewId(), style=wx.ALIGN_RIGHT, label="bla")
+        self.staticTextTimerCountdown.SetForegroundColour("#FF0000")
+        self.staticTextTimerCountdown.SetFont(fontBlue)
+
         sbsizer5.Add(item=self.staticTextTestTitle, proportion=1, flag=wx.EXPAND | wx.ALL, border=5)
-        sbsizer5.Add(item=self.windowTimerCountdown, proportion=0, flag=wx.EXPAND | wx.TOP | wx.RIGHT | wx.BOTTOM, border=5)
+        sbsizer5.Add(item=self.staticTextTimerCountdown, proportion=0, flag=wx.EXPAND | wx.TOP | wx.RIGHT | wx.BOTTOM, border=5)
+
         vsizer1.Add(item=sbsizer5, proportion=0, flag=wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, border=10)
 
         hsizer1 = wx.BoxSizer(orient=wx.HORIZONTAL)
@@ -337,7 +302,7 @@ class PanelTest(wx.Panel):
 
     #----------------------------------------------------------------------
     def __setRemainingTime(self):
-        end = self.__test._testInfo["test_end_time"]
+        end = self.__test._testInfo["test_end_time"] # test_duration_time !!!
         current = pyTCExamCommon.getCurrentTime()
         diff = end - current
         hours, remainder = divmod(diff.seconds, 3600)
@@ -351,6 +316,6 @@ class PanelTest(wx.Panel):
             wx.MessageBox(message="Vrijeme je isteklo!", caption=u"Ispit", style=wx.ICON_EXCLAMATION)
             self.__terminateExam()
         else:
-            old = self.windowTimerCountdown.getText()
+            old = self.staticTextTimerCountdown.GetLabel()
             if time != old:
-                self.windowTimerCountdown.drawTime(time)
+                self.staticTextTimerCountdown.SetLabel(time)
