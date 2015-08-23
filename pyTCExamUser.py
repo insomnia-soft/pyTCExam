@@ -46,6 +46,12 @@ class User(object):
 
         return False
 
+
+    #----------------------------------------------------------------------
+    def getUserLevel(self):
+        return self.userLevel
+
+
     #----------------------------------------------------------------------
     def getName(self):
         out = []

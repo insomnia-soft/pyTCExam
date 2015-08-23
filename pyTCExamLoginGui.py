@@ -80,7 +80,7 @@ class PanelLogin(wx.Panel):
 
     #----------------------------------------------------------------------
     def __isAdmin(self):
-        if self.__userLogin(False) == True and self.__userLevelForExit >= self.__user.level:
+        if self.__userLogin(False) == True and self.__userLevelForExit >= self.__user.getUserLevel():
             return True
         else:
             wx.MessageBox(message=u"Nemate privilegiju ugasiti aplikaciju!", caption=u"Izlaz", style=wx.OK | wx.ICON_ERROR)
