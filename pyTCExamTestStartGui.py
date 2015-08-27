@@ -85,6 +85,8 @@ class PanelTestStart(wx.Panel):
                     txt = "da"
                 else:
                     txt = "ne"
+            elif name[0] == "test_begin_time" or name[0] == "test_end_time":
+                txt = self.__testObject._testInfo[name[0]].strftime("%d.%m.%Y. %H:%M:%S")
             else:
                 txt = str(self.__testObject._testInfo[name[0]])
             self.infoStaticText[name[0]].SetLabel(txt)

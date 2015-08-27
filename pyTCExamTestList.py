@@ -71,7 +71,7 @@ class TestList:
             currentTest['test_repeatable'] = row['test_repeatable']
             currentTest['test_password'] = row['test_password']
             currentTest['status'] = 0
-            currentTest['status_msg'] = u"Ispit je omogućen za rješavanje"
+            currentTest['status_msg'] = ""
             currentTest['status_color'] = 0
             currentTest['expired'] = False
             # TCExam legal values are:
@@ -90,7 +90,11 @@ class TestList:
                 testExpired = True
 
             # status ispita
-            if testStatus >= 4 and testResultToUser:
+            if testStatus == 0:
+                currentTest['status_msg'] = u"Ispit je omogućen za rješavanje"
+            elif testStatus == 1 or testStatus == 2 or testStatus == 3:
+                currentTest['status_msg'] = u"Ispit je moguće nastaviti rješavati"
+            elif testStatus >= 4 and testResultToUser:
                 userTestData = self.__getUserTestStat(testId, self.__userId, testUserId)
                 passMsg = ""
 
@@ -104,7 +108,7 @@ class TestList:
 
                 if userTestData.has_key('user_score'):
                     if userTestData['test_max_score'] > 0:
-                        passMsg = str(userTestData['user_score']) + " / " + str(userTestData['test_max_score']) + " (" + str(round((userTestData['user_score'] / userTestData['test_max_score']) * 100, 0)) + ")" + passMsg
+                        passMsg = str(userTestData['user_score']) + " / " + str(userTestData['test_max_score']) + " (" + str(round((userTestData['user_score'] / userTestData['test_max_score']) * 100, 0)) + ")" + u" - ispit je riješen" + passMsg
                     else:
                         passMsg = str(userTestData['user_score']) + passMsg
 

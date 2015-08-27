@@ -81,6 +81,7 @@ class HtmlWindowQuestion(html.HtmlWindow):
                 # radio button
                 code += '<table>'
                 code += '<tr>'
+                code += '<td></td>'
                 if test_noanswer_enabled:
                     code += u'<td width="80" align="center"><font color="#A0A0A0"><b>Bez odgovora</b></font></td>'
                 code += u'<td width="80" align="center"><font color="#FF0000"><b>Netočno</b></font></td>'

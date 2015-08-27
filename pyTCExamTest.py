@@ -85,7 +85,6 @@ class Test:
 
     #----------------------------------------------------------------------
     def setQuestionData(self, field, value):
-        #sql += " testlog_answer_text=NULL"
         score = self.__calculateScore()
         time = (pyTCExamCommon.getCurrentTime() - self._displayTime)
         reaction = (time.days * 24 * 60 * 60 * 1000) + (time.seconds * 1000) + (time.microseconds / 1000)
@@ -143,27 +142,27 @@ class Test:
 
     #----------------------------------------------------------------------
     def __calculateScore(self):
-
+        questionId = self._selectedQuestionId
         num_answers = 0
-        question_type = self._testData[self._selectedQuestionId]["question_type"]
+        question_type = self._testData[questionId]["question_type"]
         question_score = Decimal(0)
-        question_difficulty = Decimal(self._testData[self._selectedQuestionId]["question_difficulty"])
+        question_difficulty = Decimal(self._testData[questionId]["question_difficulty"])
         question_right_score = Decimal(self._testInfo["test_score_right"] * question_difficulty)
         question_wrong_score = Decimal(self._testInfo["test_score_wrong"] * question_difficulty)
         question_unanswered_score = Decimal(self._testInfo["test_score_unanswered"] * question_difficulty)
 
         if question_type == 3:
-            if (self._testData[self._selectedQuestionId]["testlog_answer_text"] == None or
-                len(self._testData[self._selectedQuestionId]["testlog_answer_text"]) == 0):
+            if (self._testData[questionId]["testlog_answer_text"] == None or
+                len(self._testData[questionId]["testlog_answer_text"]) == 0):
                 question_score = question_unanswered_score
             else:
                 question_score = question_wrong_score
-                for a in self._testData[self._selectedQuestionId]["answers"]:
-                    if self.checkTextAnswer(a["answer_description"], self._testData[self._selectedQuestionId]["testlog_answer_text"]):
+                for a in self._testData[questionId]["answers"]:
+                    if self.checkTextAnswer(a["answer_description"], self._testData[questionId]["testlog_answer_text"]):
                         question_score = question_right_score
                         break
         else:
-            for a in self._testData[self._selectedQuestionId]["answers"]:
+            for a in self._testData[questionId]["answers"]:
                 num_answers += 1
                 if question_type == 1:
                     # MCSA
@@ -274,7 +273,8 @@ class Test:
         testUserId = self.__getTestUserId()
         if testUserId:
             sql = "SELECT"
-            sql += " testuser_comment"
+            sql += " testuser_comment,"
+            sql += " testuser_creation_time"
             sql += " FROM " + pyTCExamCommon.getTableName("TABLE_TEST_USER")
             sql += " WHERE"
             sql += " testuser_id=%s"
@@ -284,6 +284,8 @@ class Test:
             if row:
                 info.update(row)
                 info["testuser_id"] = testUserId
+                info["testuser_comment"] = row["testuser_comment"]
+                info["testuser_creation_time"] = row["testuser_creation_time"]
 
         return info
 

@@ -41,6 +41,11 @@ class PanelTestReport(wx.Panel):
         correctMsg = ""
         correctTotal = 0
         correctMax = len(__test._testData)
+        questionOpen = "" # vrijeme kad je pitanje prikazano
+        questionEdit = "" # vrijeme kad je pitanje odgovoreno
+        questionTimeElapsed = "" # vrijeme proteklo za rješavanje pitanja
+        i = 0 # brojač za pitanja
+        j = 0 # brojač za odgovore
 
         if len(__test._testData):
             created = __test._testData[0]["testlog_creation_time"]
@@ -130,18 +135,54 @@ class PanelTestReport(wx.Panel):
 
         out += '<tr>'
         out += u'<td align=right>Komentar:</td>'
-        out += '<td>' + comment + '</td>'
+        if comment is None:
+            out += '<td></td>'
+        else:
+            out += '<td>' + comment + '</td>'
         out += '</tr><br>'
 
         i = 1
         for q in __test._testData:
             j = 1
-            # div za pitanje
+
+            # div za pitanje + odgovore
             out += '<div>'
 
+            # div za bodove i vrijeme
+            out += '<div><b>'
+            out += str(i) + ". " # redni broj pitanja
+            out += '[' + str(q["testlog_score"]) + ']' # broj bodova
+
+            # vrijeme kad je pitanje prikazano i/ili odgovoreno
+            if q["testlog_display_time"] is not None: # ako je pitanje prikazano
+                if q["testlog_change_time"] is not None: # ako je pitanje odgovoreno
+                    if q["testlog_display_time"].strftime("%Y-%m-%d") == q["testlog_display_time"].strftime("%Y-%m-%d"): # ako je isti dan i otvoreno i odgovoreno, nije potrebno ispisati datume
+                        questionOpen = q["testlog_display_time"].strftime("%H:%M:%S") + " | "
+                        questionEdit = q["testlog_change_time"].strftime("%H:%M:%S") + " | "
+                    else: # ako nije isti dan i otvoreno i odgovoreno, ispiši i datume
+                        questionOpen = q["testlog_display_time"].strftime("%d.%m.%Y. %H:%M:%S") + " | "
+                        questionEdit = q["testlog_change_time"].strftime("%d.%m.%Y. %H:%M:%S") + " | "
+                    questionTimeElapsed = str(q["testlog_change_time"] - q["testlog_display_time"])
+                else: # pitanje nije odgovoreno, ispiši samo kad je pitanje prikazano
+                    questionOpen = q["testlog_display_time"].strftime("%d.%m.%Y. %H:%M:%S")
+                    questionEdit = ""
+                    questionTimeElapsed = ""
+            else: # pitanje nije ni prikazano ni odgovoreno
+                questionOpen = ""
+                questionEdit = ""
+                questionTimeElapsed = ""
+
+            if len(questionOpen + questionEdit + questionTimeElapsed): # ako je pitanje bar prikazano
+                out += " (" + questionOpen + questionEdit + questionTimeElapsed + ")" # ispiši vrijeme/datum
+
+            out += '</b></div>'
+            # end div za bodove i vrijeme
+
+            # div za pitanje
             out += '<div>'
-            out += str(i) + ". " + pyTCExamCommon.decodeBBCode(q["question_description"])
+            out += pyTCExamCommon.decodeBBCode(q["question_description"])
             out += '</div><br><br>'
+            # end div za pitanje
 
             if q["question_type"] == 1:
                 # MCSA
@@ -222,8 +263,7 @@ class PanelTestReport(wx.Panel):
                     j += 1
                 out += '</table>'
 
-            elif q["question_type"] == 3:
-                # TEXT
+            elif q["question_type"] == 3: # TEXT
                 correct = False
                 answer = ""
                 t = pyTCExamTest.Test(db=None)
@@ -244,8 +284,7 @@ class PanelTestReport(wx.Panel):
                 out += '>' + answer + '</span>'
 
 
-            elif q["question_type"] == 4:
-                # ORDER
+            elif q["question_type"] == 4: # ORDER
                 out += '<table border="1" cellspacing="0" cellpadding="5">'
                 for a in q["answers"]:
                     out += '<tr>'
@@ -277,8 +316,10 @@ class PanelTestReport(wx.Panel):
 
                 out += '</table>'
 
-            # close div za pitanje
+            # end div za pitanje + odgovore
             out += '</div><br>'
+
+            # povećaj brojač pitanja
             i += 1
 
         out += '</table>'

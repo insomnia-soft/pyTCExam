@@ -3,7 +3,8 @@
 
 import wx
 import wx.lib.buttons as buttons
-import datetime
+#import datetime
+from datetime import datetime, timedelta
 import pyTCExam
 import pyTCExamApp
 import pyTCExamTest
@@ -67,21 +68,21 @@ class PanelTest(wx.Panel):
         sbsizer2 = wx.StaticBoxSizer(box=wx.StaticBox(parent=self, id=wx.NewId(), label=u"Odabrano pitanje"), orient=wx.VERTICAL)
         sbsizer2.Add(item=self.htmlWindow, proportion=1, flag=wx.EXPAND | wx.ALL, border=10)
 
-        self.buttonPrevQuestion = wx.Button(parent=self, id=wx.NewId(), label=u"<< Prethodno pitanje", size=(160, 25))
-        self.buttonConfirmAnswer = wx.Button(parent=self, id=wx.NewId(), label=u"Potvrdi odgovor", size=(160, 25))
-        self.buttonNextQuestion = wx.Button(parent=self, id=wx.NewId(), label=u"Slijedeće pitanje >>", size=(160, 25))
-        buttonTerminateExam = wx.Button(parent=self, id=wx.NewId(), label=u"Završi ispit", size=(160, 25))
-        buttonBackToTestList = wx.Button(parent=self, id=wx.NewId(), label=u"Povratak na popis ispita", size=(160, 25))
+        self.buttonPrevQuestion = wx.Button(parent=self, id=wx.NewId(), label=u"Prethodno pitanje", size=(-1, 25))
+        self.buttonConfirmAnswer = wx.Button(parent=self, id=wx.NewId(), label=u"Potvrdi odgovor", size=(-1, 25))
+        self.buttonNextQuestion = wx.Button(parent=self, id=wx.NewId(), label=u"Slijedeće pitanje", size=(-1, 25))
+        buttonTerminateExam = wx.Button(parent=self, id=wx.NewId(), label=u"Završi ispit", size=(-1, 25))
+        buttonBackToTestList = wx.Button(parent=self, id=wx.NewId(), label=u"Povratak na popis ispita", size=(-1, 25))
 
         sbsizer3 = wx.StaticBoxSizer(box=wx.StaticBox(parent=self, id=wx.NewId(), label=u"Navigacija"), orient=wx.HORIZONTAL)
         sbsizer3.Add(item=self.buttonPrevQuestion, flag=wx.ALL, border=5)
-        sbsizer3.Add(item=(20, -1))
+        sbsizer3.Add(item=(10, -1))
         sbsizer3.Add(item=self.buttonConfirmAnswer, flag=wx.ALL, border=5)
-        sbsizer3.Add(item=(20, -1))
+        sbsizer3.Add(item=(10, -1))
         sbsizer3.Add(item=self.buttonNextQuestion, flag=wx.ALL, border=5)
         sbsizer3.Add(item=(-1, -1), proportion=1, flag=wx.EXPAND)
         sbsizer3.Add(item=buttonTerminateExam, flag=wx.ALL, border=5)
-        sbsizer3.Add(item=(20, -1))
+        sbsizer3.Add(item=(10, -1))
         sbsizer3.Add(item=buttonBackToTestList, flag=wx.ALL, border=5)
 
         self.textCtrlComment = wx.TextCtrl(parent=self, id=wx.NewId(), size=(-1, 150), style=wx.TE_MULTILINE)
@@ -228,10 +229,14 @@ class PanelTest(wx.Panel):
 
 
     #----------------------------------------------------------------------
-    def __terminateExam(self):
-        dlg = wx.MessageDialog(parent=self, message=u"Potvrdite kraj ispita.", caption=u"Ispit", style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-        ret = dlg.ShowModal()
-        if ret == wx.ID_YES:
+    def __terminateExam(self, showWarning=True):
+        terminate = True
+        if showWarning == True:
+            dlg = wx.MessageDialog(parent=self, message=u"Potvrdite kraj ispita.", caption=u"Ispit", style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
+            ret = dlg.ShowModal()
+            if ret != wx.ID_YES:
+                terminate = False
+        if terminate == True:
             self.__confirmAnswer()
             self.timerCountdown.Stop()
             self.__test.terminateTest()
@@ -244,14 +249,14 @@ class PanelTest(wx.Panel):
             button_id = self.__test._selectedQuestionId
         else:
             button_id = unselected_id
-        color_id = 0
+        color_id = 0 # red
         if self.__test._testData[button_id]["testlog_display_time"] == None:
-            color_id = 0
+            color_id = 0 # red
         else:
             if self.__test._testData[button_id]["testlog_change_time"] == None:
-                color_id = 1
+                color_id = 1 # yellow
             else:
-                color_id = 2
+                color_id = 2 # green
 
         if self.__questionButton[button_id + 1].Enabled == False:
             self.__questionButton[button_id + 1].Enabled = True
@@ -302,8 +307,8 @@ class PanelTest(wx.Panel):
 
     #----------------------------------------------------------------------
     def __setRemainingTime(self):
-        end = self.__test._testInfo["test_end_time"] # test_duration_time !!!
         current = pyTCExamCommon.getCurrentTime()
+        end = self.__test._testInfo["testuser_creation_time"] + timedelta(minutes=self.__test._testInfo["test_duration_time"])
         diff = end - current
         hours, remainder = divmod(diff.seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -314,7 +319,7 @@ class PanelTest(wx.Panel):
         if current > end:
             self.timerCountdown.Stop()
             wx.MessageBox(message="Vrijeme je isteklo!", caption=u"Ispit", style=wx.ICON_EXCLAMATION)
-            self.__terminateExam()
+            self.__terminateExam(showWarning=False)
         else:
             old = self.staticTextTimerCountdown.GetLabel()
             if time != old:

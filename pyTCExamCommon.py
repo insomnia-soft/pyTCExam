@@ -80,7 +80,7 @@ def getPasswordHash(password):
 def getInfoNames():
     return [["test_begin_time", u"Početak:"],
             ["test_end_time", u"Kraj:"],
-            ["test_duration_time", u"Trajanje:"],
+            ["test_duration_time", u"Trajanje (minute):"],
             ["test_score_right", u"Broj bodova za točan odgovor:"],
             ["test_score_wrong", u"Broj bodova za pogrešan odgovor:"],
             ["test_score_unanswered", u"Broj bodova za nedogovoreno pitanje:"],
@@ -106,6 +106,7 @@ def decodeBBCode(bbcode):
     bbcode = re.sub("\[url\](.*?)\[/url\]", "\\1", bbcode)
     return bbcode
 
+##  not implemented
 #
 ##	// [dir=ltr]text direction: ltr, rtl[/dir]
 ##	$pattern[++$i] = "#\[dir=(.*?)\](.*?)\[/dir\]#si";
@@ -115,14 +116,9 @@ def decodeBBCode(bbcode):
 ##	$pattern[++$i] = "#\[align=(.*?)\](.*?)\[/align\]#si";
 ##	$replacement[++$i] = '<span style="text-align:\1;">\2</span>';
 ##
-##	// [code] and [/code] display text as source code
-##	$pattern[++$i] = "#\[code\](.*?)\[/code\]#si";
-##	$replacement[++$i] = '<div class="tcecodepre">\1</div>';
-##
 ##	// [o] and [/o] for overlined text.
 ##	$pattern[++$i] = "#\[o\](.*?)\[/o\]#si";
 ##	$replacement[++$i] = '<span style="text-decoration:overline;">\1</span>';
-##
 ##
 ##	// [ulist] and [/ulist] unordered list
 ##	$pattern[++$i] = "#\[ulist\](.*?)\[/ulist\]#si";

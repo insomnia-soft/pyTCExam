@@ -20,6 +20,7 @@ class User(object):
         self.userLevel = 0
         self.db = db
 
+
     #----------------------------------------------------------------------
     def userLogin(self, username, password):
         sql = "SELECT"

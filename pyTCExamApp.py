@@ -70,24 +70,17 @@ class FrameMain(wx.Frame):
 
 
     #----------------------------------------------------------------------
-    def onKeyboardEvent(self, event):
-        if event.Key.lower() in ['lwin', 'rwin', 'lcontrol', 'rcontrol', 'lalt', 'ralt', 'tab', 'f4']:
-            return False
-        else:
-            return True
-
-
-    #----------------------------------------------------------------------
     def userLogin(self):
         self.panelLogin.Hide()
-        self.panelTestList.refreshTests()
         self.panelTestList.Show()
         self.Layout()
+        self.panelTestList.refreshTests()
 
 
     #----------------------------------------------------------------------
     def userLogoff(self):
         self.panelTestList.Hide()
+        self.panelLogin.resetFields()
         self.panelLogin.Show()
         self.Layout()
 

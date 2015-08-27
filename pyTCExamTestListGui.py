@@ -31,9 +31,9 @@ class PanelTestList(wx.Panel):
         # ListCtrl sa popisom ispita
         self.listCtrlTests = wx.ListCtrl(parent=self, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
         self.listCtrlTests.InsertColumn(col=0, heading="Ispit", width=300)
-        self.listCtrlTests.InsertColumn(col=1, heading="Od", width=150)
-        self.listCtrlTests.InsertColumn(col=2, heading="Do", width=150)
-        self.listCtrlTests.InsertColumn(col=3, heading="Status", width=200)
+        self.listCtrlTests.InsertColumn(col=1, heading="Od")
+        self.listCtrlTests.InsertColumn(col=2, heading="Do")
+        self.listCtrlTests.InsertColumn(col=3, heading="Status")
 
         # gumb refresh tests
         buttonRefreshTests = wx.Button(parent=self, id=wx.NewId(), label="Dohvati ispite", size=(200, 25))
@@ -125,12 +125,15 @@ class PanelTestList(wx.Panel):
         index = 0
         for testId in self.__tests:
             self.listCtrlTests.InsertStringItem(index, self.__tests[testId]['test_name'])
-            self.listCtrlTests.SetStringItem(index, 1, str(self.__tests[testId]['test_begin_time']))
-            self.listCtrlTests.SetStringItem(index, 2, str(self.__tests[testId]['test_end_time']))
+            self.listCtrlTests.SetStringItem(index, 1, self.__tests[testId]['test_begin_time'].strftime("%d.%m.%Y. %H:%M:%S"))
+            self.listCtrlTests.SetStringItem(index, 2, self.__tests[testId]['test_end_time'].strftime("%d.%m.%Y. %H:%M:%S"))
             self.listCtrlTests.SetStringItem(index, 3, self.__tests[testId]['status_msg'])
             self.listCtrlTests.SetItemBackgroundColour(index, colors[self.__tests[testId]['status_color']])
             self.listCtrlTests.SetItemData(item=index, data=testId)
             index += 1
+        self.listCtrlTests.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+        self.listCtrlTests.SetColumnWidth(2, wx.LIST_AUTOSIZE)
+        self.listCtrlTests.SetColumnWidth(3, wx.LIST_AUTOSIZE_USEHEADER) # zadnja kolona popunjava sav slobodan prostor
 
 
     #----------------------------------------------------------------------
@@ -172,6 +175,8 @@ class PanelTestList(wx.Panel):
                     self.infoStaticText[name[0]].SetLabel("da")
                 else:
                     self.infoStaticText[name[0]].SetLabel("ne")
+            elif name[0] == "test_begin_time" or name[0] == "test_end_time":
+                self.infoStaticText[name[0]].SetLabel(self.__tests[self.selectedTestId][name[0]].strftime("%d.%m.%Y. %H:%M:%S"))
             else:
                 self.infoStaticText[name[0]].SetLabel(str(self.__tests[self.selectedTestId][name[0]]))
 

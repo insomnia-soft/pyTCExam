@@ -84,7 +84,7 @@ class PanelTestStart(wx.Panel):
     #----------------------------------------------------------------------
     def __onButtonContinue(self, event):
         if self.__testInfo['test_password'] != None:
-            dlgGetPw = wx.PasswordEntryDialog(self, u'Upiši lozinku za pristup ispitu:', u'Ispit', "12345678")
+            dlgGetPw = wx.PasswordEntryDialog(self, u'Upiši lozinku za pristup ispitu:', u'Ispit', "")
             ret = dlgGetPw.ShowModal()
             dlgGetPw.Destroy()
 
