@@ -8,15 +8,35 @@ import mysql.connector
 from mysql.connector import Error
 import pyTCExamCommon
 
+#----------------------------------------------------------------------
+#----------------------------------------------------------------------
+#----------------------------------------------------------------------
 class DbMySQL(object):
+
+    #----------------------------------------------------------------------
     def __init__(self, host, port, username, password, database):
         self.host = host
         self.port = port
         self.username = username
         self.password = password
         self.database = database
+        self.connected = False
+        self.connError = ""
+
         self.__connect()
 
+
+    #----------------------------------------------------------------------
+    def isConnected(self):
+        return self.connected
+
+
+    #----------------------------------------------------------------------
+    def getError(self):
+        return self.connError
+
+
+    #----------------------------------------------------------------------
     def __connect(self):
         try:
             self.con = mysql.connector.connect(user=self.username,
@@ -27,29 +47,30 @@ class DbMySQL(object):
                                                 autocommit=True,
                                                 charset='utf8')
 
-            if not self.con.is_connected():
-                return 1
+            if self.con.is_connected():
+                self.connected = True
 
         except Error as e:
-            print e
-            return 1
+            self.connError = str(e)
+            self.connected = False
 
-        return 0
 
+    #----------------------------------------------------------------------
     def query(self, sql, data=()):
         self.cursor = self.con.cursor(dictionary=True)
         self.cursor.execute(sql, params=data)
 
+
+    #----------------------------------------------------------------------
     def getLastInsertId(self):
         return self.cursor.lastrowid
 
+
+    #----------------------------------------------------------------------
     def fetchAllRows(self):
         return self.cursor.fetchall()
 
+
+    #----------------------------------------------------------------------
     def fetchOneRow(self):
         return self.cursor.fetchone()
-
-    def stripSlashes(self, s):
-        r = re.sub(r"\\(n|r)", "\n", s)
-        r = re.sub(r"\\", "", r)
-        return r

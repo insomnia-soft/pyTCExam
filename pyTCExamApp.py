@@ -31,7 +31,7 @@ class FrameMain(wx.Frame):
         # always on top
         wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP)
 
-        # bez always on top
+        # no always on top
         # wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE, size=(1000, 800))
 
         # configuration
@@ -43,6 +43,13 @@ class FrameMain(wx.Frame):
                                         conf.getDbUser(),
                                         conf.getDbPassword(),
                                         conf.getDbName())
+
+        # check if connection with database exists, if not, notify user and close app
+        if self.db.isConnected() == False:
+            print self.db.getError()
+            msg = u"Veza sa bazom nije uspostavljena!" + "\n\n" + u"Greška:" + "\n" + self.db.getError()
+            wx.MessageBox(message=msg, caption="pyTCExam", style=wx.ICON_ERROR | wx.OK)
+            self.Destroy()
 
         # user object
         self.user = pyTCExamUser.User(self.db)
@@ -65,6 +72,13 @@ class FrameMain(wx.Frame):
         mainVSizer.Add(self.panelTestReport, 1, wx.EXPAND)
         self.SetSizer(mainVSizer)
 
+        self.panelTestList.Hide()
+        self.panelTestStart.Hide()
+        self.panelTest.Hide()
+        self.panelTestReport.Hide()
+        self.panelLogin.Show()
+        self.panelLogin.resetFields()
+
         # bind close event
         self.Bind(wx.EVT_CLOSE, self.__onCloseWindow)
 
@@ -82,16 +96,15 @@ class FrameMain(wx.Frame):
         self.panelTestList.Hide()
         self.panelLogin.resetFields()
         self.panelLogin.Show()
-        self.Layout()
 
 
     #----------------------------------------------------------------------
     def initTest(self):
         """ u listi odabran ispit -> klik na "započni s rješavanjem" """
         self.test.initTest(userId=self.user.id, testId=self.panelTestList.selectedTestId)
-        self.panelTestStart.loadTestData()
         self.panelTestList.Hide()
         self.panelTestStart.Show()
+        self.panelTestStart.loadTestData()
         self.Layout()
 
 

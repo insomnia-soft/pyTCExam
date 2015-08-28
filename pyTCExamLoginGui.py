@@ -46,7 +46,6 @@ class PanelLogin(wx.Panel):
         # message
         self.staticTextMessage = wx.StaticText(parent=self, id=wx.NewId(), style=wx.ALIGN_CENTER)
         self.staticTextMessage.SetForegroundColour("#FF0000")
-        self.staticTextMessage.Hide()
         hsizer4 = wx.BoxSizer(wx.HORIZONTAL)
         hsizer4.Add(self.staticTextMessage, proportion=1, flag=wx.EXPAND | wx.ALL, border=3)
 
@@ -54,8 +53,8 @@ class PanelLogin(wx.Panel):
         sbvsizer1 = wx.StaticBoxSizer(wx.StaticBox(self, -1, label="Prijava korisnika"), wx.VERTICAL)
         sbvsizer1.Add(item=hsizer1, proportion=0, flag=wx.ALL, border=4)
         sbvsizer1.Add(item=hsizer2, proportion=0, flag=wx.ALL, border=4)
-        sbvsizer1.Add(item=hsizer3, proportion=0, flag=wx.EXPAND | wx.ALL, border=4)
         sbvsizer1.Add(item=hsizer4, proportion=1, flag=wx.EXPAND | wx.ALL, border=4)
+        sbvsizer1.Add(item=hsizer3, proportion=0, flag=wx.EXPAND | wx.ALL, border=4)
 
         # grid sizer to center the login box
         gsizer1 = wx.GridSizer(1, 1, 0, 0)
@@ -72,6 +71,7 @@ class PanelLogin(wx.Panel):
         self.textCtrlUsername.SetLabel(label="")
         self.textCtrlPassword.SetLabel(label="")
         self.staticTextMessage.SetLabel(label="")
+        self.staticTextMessage.Hide()
         self.Layout()
 
 

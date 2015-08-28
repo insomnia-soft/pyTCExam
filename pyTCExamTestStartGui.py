@@ -46,12 +46,24 @@ class PanelTestStart(wx.Panel):
         buttonContinue = wx.Button(parent=self, id=wx.NewId(), label="&Kreni")
         buttonCancel = wx.Button(parent=self, id=wx.NewId(), label="&Odustani")
 
+        # password + message
+        self.staticTextPassword = wx.StaticText(parent=self, id=wx.NewId(), label="Lozinka:")
+        self.textCtrlPassword = wx.TextCtrl(parent=self, id=wx.NewId(), style=wx.TE_PASSWORD)
+        self.staticTextMessage = wx.StaticText(parent=self, id=wx.NewId(), style=wx.ALIGN_CENTER)
+        self.staticTextMessage.SetForegroundColour("#FF0000")
+
+        # sizer for password & message
         hsizer1 = wx.BoxSizer(orient=wx.HORIZONTAL)
-        hsizer1.Add(item=(-1, -1), proportion=1)
-        hsizer1.Add(item=buttonContinue)
-        hsizer1.Add(item=(-1, -1), proportion=1)
-        hsizer1.Add(item=buttonCancel)
-        hsizer1.Add(item=(-1, -1), proportion=1)
+        hsizer1.Add(item=self.staticTextPassword, proportion=0, flag=wx.TOP | wx.RIGHT, border=3)
+        hsizer1.Add(item=self.textCtrlPassword, proportion=1, flag=wx.EXPAND)
+
+        # sizer for buttons
+        hsizer2 = wx.BoxSizer(orient=wx.HORIZONTAL)
+        hsizer2.Add(item=(-1, -1), proportion=1)
+        hsizer2.Add(item=buttonContinue)
+        hsizer2.Add(item=(-1, -1), proportion=1)
+        hsizer2.Add(item=buttonCancel)
+        hsizer2.Add(item=(-1, -1), proportion=1)
 
         # info o ispitu
         sbvsizer1 = wx.StaticBoxSizer(box=wx.StaticBox(parent=self, id=wx.NewId(), label=u"Informacije o odabranom ispitu"), orient=wx.VERTICAL)
@@ -60,7 +72,9 @@ class PanelTestStart(wx.Panel):
         sbvsizer1.Add(self.staticTextTestName, 0, wx.EXPAND | wx.ALL, 5)
         sbvsizer1.Add(self.staticTextTestDescription, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
         sbvsizer1.Add(fgsizer1, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
-        sbvsizer1.Add(hsizer1, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
+        sbvsizer1.Add(hsizer1, proportion=0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, border=5)
+        sbvsizer1.Add(self.staticTextMessage, proportion=1, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, border=5)
+        sbvsizer1.Add(hsizer2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
 
         gsizer1 = wx.GridSizer(1, 1, 0, 0)
         gsizer1.Add(sbvsizer1, 1, wx.ALIGN_CENTER)
@@ -91,21 +105,29 @@ class PanelTestStart(wx.Panel):
                 txt = str(self.__testObject._testInfo[name[0]])
             self.infoStaticText[name[0]].SetLabel(txt)
 
+        if self.__testObject._testInfo['test_password'] is None:
+            self.staticTextPassword.Hide()
+            self.textCtrlPassword.Hide()
+        else:
+            self.staticTextPassword.Show()
+            self.textCtrlPassword.Show()
+        self.staticTextMessage.Hide() # show only when user enters wrong password
+        self.Layout()
+
 
     #----------------------------------------------------------------------
     def __onButtonContinue(self, event):
-        if self.__testObject._testInfo['test_password'] != None:
-            dlgGetPw = wx.PasswordEntryDialog(self, u'Upiši lozinku za pristup ispitu:', u'Ispit', "12345678")
-            ret = dlgGetPw.ShowModal()
-            dlgGetPw.Destroy()
-
-            if ret == wx.ID_OK:
-                if pyTCExamCommon.getPasswordHash(dlgGetPw.GetValue()) == self.__testObject._testInfo['test_password']:
-                    self.__startTest()
-                else:
-                    wx.MessageBox(message=u"Pristup ispitu nije dozvoljen!", caption=u"Ispit", style=wx.OK | wx.ICON_ERROR)
-        else:
+        if self.__testObject._testInfo['test_password'] is None: # user does not need to type password to start test
             self.__startTest()
+        else: # user needs to type password to start test
+            password = self.textCtrlPassword.GetValue()
+            if pyTCExamCommon.getPasswordHash(password) == self.__testObject._testInfo['test_password']:
+                self.__startTest()
+            else:
+                msg = u"Lozinka je pogrešna!"
+                self.staticTextMessage.SetLabel(label=msg)
+                self.staticTextMessage.Show()
+                self.Layout()
 
 
     #----------------------------------------------------------------------
