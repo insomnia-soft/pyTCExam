@@ -25,6 +25,7 @@ class PanelTest(wx.Panel):
         self.__lastButtonClick = 0
         self.__questionButton = {}
         self.__questionButtonCount = 0
+        self.__testRunning = False
 
         # not displayed, displayed, with answer
         self.__colorArray = ["#FFA0A0", "#FFFFA0", "#A0FFA0"]
@@ -71,8 +72,11 @@ class PanelTest(wx.Panel):
         self.buttonPrevQuestion = wx.Button(parent=self, id=wx.NewId(), label=u"Prethodno pitanje", size=(-1, 25))
         self.buttonConfirmAnswer = wx.Button(parent=self, id=wx.NewId(), label=u"Potvrdi odgovor", size=(-1, 25))
         self.buttonNextQuestion = wx.Button(parent=self, id=wx.NewId(), label=u"Slijedeće pitanje", size=(-1, 25))
-        buttonTerminateExam = wx.Button(parent=self, id=wx.NewId(), label=u"Završi ispit", size=(-1, 25))
-        buttonBackToTestList = wx.Button(parent=self, id=wx.NewId(), label=u"Povratak na popis ispita", size=(-1, 25))
+        self.buttonTerminateExam = wx.Button(parent=self, id=wx.NewId(), label=u"Završi ispit", size=(-1, 25))
+        self.buttonTerminateExamConfirm = wx.Button(parent=self, id=wx.NewId(), label=u"Potvrdi završetak ispita", size=(-1, 25))
+        self.buttonTerminateExamCancel = wx.Button(parent=self, id=wx.NewId(), label=u"Nastavi rješavati ispit", size=(-1, 25))
+        self.buttonBackToTestList = wx.Button(parent=self, id=wx.NewId(), label=u"Povratak na popis ispita", size=(-1, 25))
+        self.buttonTerminateExamConfirm.SetForegroundColour("#FF0000")
 
         sbsizer3 = wx.StaticBoxSizer(box=wx.StaticBox(parent=self, id=wx.NewId(), label=u"Navigacija"), orient=wx.HORIZONTAL)
         sbsizer3.Add(item=self.buttonPrevQuestion, flag=wx.ALL, border=5)
@@ -81,9 +85,11 @@ class PanelTest(wx.Panel):
         sbsizer3.Add(item=(10, -1))
         sbsizer3.Add(item=self.buttonNextQuestion, flag=wx.ALL, border=5)
         sbsizer3.Add(item=(-1, -1), proportion=1, flag=wx.EXPAND)
-        sbsizer3.Add(item=buttonTerminateExam, flag=wx.ALL, border=5)
+        sbsizer3.Add(item=self.buttonTerminateExam, flag=wx.ALL, border=5)
+        sbsizer3.Add(item=self.buttonTerminateExamCancel, flag=wx.ALL, border=5)
         sbsizer3.Add(item=(10, -1))
-        sbsizer3.Add(item=buttonBackToTestList, flag=wx.ALL, border=5)
+        sbsizer3.Add(item=self.buttonBackToTestList, flag=wx.ALL, border=5)
+        sbsizer3.Add(item=self.buttonTerminateExamConfirm, flag=wx.ALL, border=5)
 
         self.textCtrlComment = wx.TextCtrl(parent=self, id=wx.NewId(), size=(-1, 150), style=wx.TE_MULTILINE)
         self.sbsizer4 = wx.StaticBoxSizer(box=wx.StaticBox(parent=self, id=wx.NewId(), label=u"Komentar"), orient=wx.VERTICAL)
@@ -106,11 +112,15 @@ class PanelTest(wx.Panel):
         self.Bind(event=wx.EVT_BUTTON, handler=self.__onPrevQuestion, source=self.buttonPrevQuestion)
         self.Bind(event=wx.EVT_BUTTON, handler=self.__onConfirmAnswer, source=self.buttonConfirmAnswer)
         self.Bind(event=wx.EVT_BUTTON, handler=self.__onNextQuestion, source=self.buttonNextQuestion)
-        self.Bind(event=wx.EVT_BUTTON, handler=self.__onTerminateExam, source=buttonTerminateExam)
-        self.Bind(event=wx.EVT_BUTTON, handler=self.__onBackToTestList, source=buttonBackToTestList)
+        self.Bind(event=wx.EVT_BUTTON, handler=self.__onTerminateExam, source=self.buttonTerminateExam)
+        self.Bind(event=wx.EVT_BUTTON, handler=self.__onTerminateExamConfirm, source=self.buttonTerminateExamConfirm)
+        self.Bind(event=wx.EVT_BUTTON, handler=self.__onTerminateExamCancel, source=self.buttonTerminateExamCancel)
+        self.Bind(event=wx.EVT_BUTTON, handler=self.__onBackToTestList, source=self.buttonBackToTestList)
         self.Bind(event=wx.EVT_TIMER, handler=self.__onTimer, source=self.timerCountdown)
 
-        self.Hide()
+        # hide confirm button
+        self.buttonTerminateExamConfirm.Hide()
+        self.buttonTerminateExamCancel.Hide()
 
 
     #----------------------------------------------------------------------
@@ -164,6 +174,7 @@ class PanelTest(wx.Panel):
             # select first question
             self.__selectQuestion(1)
 
+        self.__testRunning = True
         self.Layout()
 
 
@@ -229,18 +240,10 @@ class PanelTest(wx.Panel):
 
 
     #----------------------------------------------------------------------
-    def __terminateExam(self, showWarning=True):
-        terminate = True
-        if showWarning == True:
-            dlg = wx.MessageDialog(parent=self, message=u"Potvrdite kraj ispita.", caption=u"Ispit", style=wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-            ret = dlg.ShowModal()
-            if ret != wx.ID_YES:
-                terminate = False
-        if terminate == True:
-            self.__confirmAnswer()
-            self.timerCountdown.Stop()
-            self.__test.terminateTest()
-            self.__parent.terminateTest()
+    def __terminateExam(self):
+        self.timerCountdown.Stop()
+        self.__test.terminateTest()
+        self.__parent.terminateTest()
 
 
     #----------------------------------------------------------------------
@@ -288,14 +291,57 @@ class PanelTest(wx.Panel):
 
     #----------------------------------------------------------------------
     def __onTerminateExam(self, event):
+        # disable/hide controls
+        self.buttonPrevQuestion.Hide()
+        self.buttonConfirmAnswer.Hide()
+        self.buttonNextQuestion.Hide()
+        self.buttonTerminateExam.Hide()
+        self.buttonBackToTestList.Hide()
+        self.htmlWindow.SetPage(source="")
+        self.__resetQuestionsButtons()
+
+        # show confirm/cancel buttons
+        self.buttonTerminateExamConfirm.Show()
+        self.buttonTerminateExamCancel.Show()
+
+        # redraw panel
+        self.Layout()
+
+
+    #----------------------------------------------------------------------
+    def __onTerminateExamConfirm(self, event):
         self.__terminateExam()
         event.Skip()
 
 
     #----------------------------------------------------------------------
+    def __onTerminateExamCancel(self, event):
+        # enable/show controls
+        self.buttonTerminateExam.Show()
+        self.buttonBackToTestList.Show()
+        self.buttonPrevQuestion.Show()
+        self.buttonConfirmAnswer.Show()
+        self.buttonNextQuestion.Show()
+        # add question buttons
+        self.__addQuestionsButtons()
+        # if there are questions
+        if self.__test.getQuestionsCount() > 0:
+            # select first question
+            self.__selectQuestion(1)
+
+        # hide confirm/cancel buttons
+        self.buttonTerminateExamConfirm.Hide()
+        self.buttonTerminateExamCancel.Hide()
+
+        # redraw panel
+        self.Layout()
+
+
+    #----------------------------------------------------------------------
     def __onBackToTestList(self, event):
-        self.__confirmAnswer()
-        self.timerCountdown.Stop()
+        if self.__testRunning == True:
+            self.__confirmAnswer()
+            self.timerCountdown.Stop()
         self.__parent.terminateTest()
         event.Skip()
 
@@ -317,9 +363,18 @@ class PanelTest(wx.Panel):
             time = str(diff.days) + "d " + time
 
         if current > end:
+            self.__confirmAnswer()
             self.timerCountdown.Stop()
-            wx.MessageBox(message="Vrijeme je isteklo!", caption=u"Ispit", style=wx.ICON_EXCLAMATION)
-            self.__terminateExam(showWarning=False)
+            self.__resetQuestionsButtons()
+            self.htmlWindow.SetPage(source='<font color="#FF0000"><b>Vrijeme je isteklo!</b></font>')
+            self.buttonPrevQuestion.Hide()
+            self.buttonConfirmAnswer.Hide()
+            self.buttonNextQuestion.Hide()
+            self.buttonTerminateExam.Hide()
+            self.buttonTerminateExamCancel.Hide()
+            self.buttonTerminateExamConfirm.Hide()
+            self.__testRunning = False
+
         else:
             old = self.staticTextTimerCountdown.GetLabel()
             if time != old:

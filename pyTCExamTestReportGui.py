@@ -133,205 +133,206 @@ class PanelTestReport(wx.Panel):
         out += '<td>' + correctMsg + '</td>'
         out += '</tr>'
 
-        out += '<tr>'
-        out += u'<td align=right>Komentar:</td>'
-        if comment is None:
-            out += '<td></td>'
-        else:
+        if comment is not None:
+            out += '<tr>'
+            out += u'<td align=right>Komentar:</td>'
             out += '<td>' + comment + '</td>'
-        out += '</tr><br>'
+            out += '</tr>'
 
-        i = 1
-        for q in __test._testData:
-            j = 1
+        out += '<br>'
 
-            # div za pitanje + odgovore
-            out += '<div>'
+        if __test._testInfo["test_report_to_users"]:
+            i = 1
+            for q in __test._testData:
+                j = 1
 
-            # div za bodove i vrijeme
-            out += '<div><b>'
-            out += str(i) + ". " # redni broj pitanja
-            out += '[' + str(q["testlog_score"]) + ']' # broj bodova
+                # div za pitanje + odgovore
+                out += '<div>'
 
-            # vrijeme kad je pitanje prikazano i/ili odgovoreno
-            if q["testlog_display_time"] is not None: # ako je pitanje prikazano
-                if q["testlog_change_time"] is not None: # ako je pitanje odgovoreno
-                    if q["testlog_display_time"].strftime("%Y-%m-%d") == q["testlog_display_time"].strftime("%Y-%m-%d"): # ako je isti dan i otvoreno i odgovoreno, nije potrebno ispisati datume
-                        questionOpen = q["testlog_display_time"].strftime("%H:%M:%S") + " | "
-                        questionEdit = q["testlog_change_time"].strftime("%H:%M:%S") + " | "
-                    else: # ako nije isti dan i otvoreno i odgovoreno, ispiši i datume
-                        questionOpen = q["testlog_display_time"].strftime("%d.%m.%Y. %H:%M:%S") + " | "
-                        questionEdit = q["testlog_change_time"].strftime("%d.%m.%Y. %H:%M:%S") + " | "
-                    questionTimeElapsed = str(q["testlog_change_time"] - q["testlog_display_time"])
-                else: # pitanje nije odgovoreno, ispiši samo kad je pitanje prikazano
-                    questionOpen = q["testlog_display_time"].strftime("%d.%m.%Y. %H:%M:%S")
+                # div za bodove i vrijeme
+                out += '<div><b>'
+                out += str(i) + ". " # redni broj pitanja
+                out += '[' + str(q["testlog_score"]) + ']' # broj bodova
+
+                # vrijeme kad je pitanje prikazano i/ili odgovoreno
+                if q["testlog_display_time"] is not None: # ako je pitanje prikazano
+                    if q["testlog_change_time"] is not None: # ako je pitanje odgovoreno
+                        if q["testlog_display_time"].strftime("%Y-%m-%d") == q["testlog_display_time"].strftime("%Y-%m-%d"): # ako je isti dan i otvoreno i odgovoreno, nije potrebno ispisati datume
+                            questionOpen = q["testlog_display_time"].strftime("%H:%M:%S") + " | "
+                            questionEdit = q["testlog_change_time"].strftime("%H:%M:%S") + " | "
+                        else: # ako nije isti dan i otvoreno i odgovoreno, ispiši i datume
+                            questionOpen = q["testlog_display_time"].strftime("%d.%m.%Y. %H:%M:%S") + " | "
+                            questionEdit = q["testlog_change_time"].strftime("%d.%m.%Y. %H:%M:%S") + " | "
+                        questionTimeElapsed = str(q["testlog_change_time"] - q["testlog_display_time"])
+                    else: # pitanje nije odgovoreno, ispiši samo kad je pitanje prikazano
+                        questionOpen = q["testlog_display_time"].strftime("%d.%m.%Y. %H:%M:%S")
+                        questionEdit = ""
+                        questionTimeElapsed = ""
+                else: # pitanje nije ni prikazano ni odgovoreno
+                    questionOpen = ""
                     questionEdit = ""
                     questionTimeElapsed = ""
-            else: # pitanje nije ni prikazano ni odgovoreno
-                questionOpen = ""
-                questionEdit = ""
-                questionTimeElapsed = ""
 
-            if len(questionOpen + questionEdit + questionTimeElapsed): # ako je pitanje bar prikazano
-                out += " (" + questionOpen + questionEdit + questionTimeElapsed + ")" # ispiši vrijeme/datum
+                if len(questionOpen + questionEdit + questionTimeElapsed): # ako je pitanje bar prikazano
+                    out += " (" + questionOpen + questionEdit + questionTimeElapsed + ")" # ispiši vrijeme/datum
 
-            out += '</b></div>'
-            # end div za bodove i vrijeme
+                out += '</b></div>'
+                # end div za bodove i vrijeme
 
-            # div za pitanje
-            out += '<div>'
-            out += pyTCExamCommon.decodeBBCode(q["question_description"])
-            out += '</div><br><br>'
-            # end div za pitanje
+                # div za pitanje
+                out += '<div>'
+                out += pyTCExamCommon.decodeBBCode(q["question_description"])
+                out += '</div><br><br>'
+                # end div za pitanje
 
-            if q["question_type"] == 1:
-                # MCSA
-                out += '<table border="1" cellspacing="0" cellpadding="5">'
-                for a in q["answers"]:
-                    out += '<tr>'
-                    out += '<td width="30" height="20" align="right">' + str(j) + '.</td>'
+                if q["question_type"] == 1:
+                    # MCSA
+                    out += '<table border="1" cellspacing="0" cellpadding="5">'
+                    for a in q["answers"]:
+                        out += '<tr>'
+                        out += '<td width="30" height="20" align="right">' + str(j) + '.</td>'
 
-                    # user
-                    out += '<td width="25"'
-                    # odgovor je točan
-                    if a["answer_isright"]:
-                        # user ili nije odgovorio (-1) ili je označio neki drugi odgovor (0)
-                        if a["logansw_selected"] == 1:
-                            out += u'bgcolor="#A0FFA0" align="center"><b>x</b>'
+                        # user
+                        out += '<td width="25"'
+                        # odgovor je točan
+                        if a["answer_isright"]:
+                            # user ili nije odgovorio (-1) ili je označio neki drugi odgovor (0)
+                            if a["logansw_selected"] == 1:
+                                out += u'bgcolor="#A0FFA0" align="center"><b>x</b>'
+                            else:
+                                out += '>'
+                        else:
+                            # user je označio ovaj odgovor (1)
+                            if a["logansw_selected"] == 1:
+                                out += u'bgcolor="#FFA0A0" align="center"><b>x</b>'
+                            # user nije označio ovaj odgovor (-1 ili 0)
+                            else:
+                                out += '>'
+                        out += '</td>'
+
+                        # test
+                        out += '<td width="25"'
+                        if a["answer_isright"]:
+                            out += u'bgcolor="#ADD8E6" align="center">●'
                         else:
                             out += '>'
-                    else:
-                        # user je označio ovaj odgovor (1)
-                        if a["logansw_selected"] == 1:
-                            out += u'bgcolor="#FFA0A0" align="center"><b>x</b>'
-                        # user nije označio ovaj odgovor (-1 ili 0)
+                        out += '</td>'
+
+                        out += '<td>' + a["answer_description"] + '</td>'
+                        out += '</tr>'
+                        j += 1
+                    out += '</table>'
+                elif q["question_type"] == 2:
+                    # MCMA
+                    out += '<table border="1" cellspacing="0" cellpadding="5">'
+                    for a in q["answers"]:
+                        out += '<tr>'
+                        out += '<td width="30" height="20" align="right">' + str(j) + '.</td>'
+
+                        # user
+                        out += '<td width="25"'
+                        # odgovor je točan
+                        if a["answer_isright"]:
+                            # user nije odabrao ovaj odgovor (0)
+                            if a["logansw_selected"] == 0:
+                                out += 'bgcolor="#FFA0A0" align="center">'
+                            # user ili nije odgovorio (-1) ili je označio neki drugi odgovor (0)
+                            elif a["logansw_selected"] == 1:
+                                out += 'bgcolor="#A0FFA0" align="center"><b>x</b>'
+                            # user nije odgovorio
+                            else:
+                                out += '>'
+                        else:
+                            # user je označio ovaj odgovor (1)
+                            if a["logansw_selected"] == 1:
+                                out += u'bgcolor="#FFA0A0" align="center"><b>x</b>'
+                            # user nije označio ovaj odgovor (-1 ili 0)
+                            else:
+                                out += '>'
+                        out += '</td>'
+
+                        # test
+                        out += '<td width="25"'
+                        if a["answer_isright"]:
+                            out += u'bgcolor="#ADD8E6" align="center">●'
                         else:
                             out += '>'
-                    out += '</td>'
+                        out += '</td>'
 
-                    # test
-                    out += '<td width="25"'
-                    if a["answer_isright"]:
-                        out += u'bgcolor="#ADD8E6" align="center">●'
-                    else:
-                        out += '>'
-                    out += '</td>'
+                        out += '<td>' + a["answer_description"] + '</td>'
+                        out += '</tr>'
+                        j += 1
+                    out += '</table>'
 
-                    out += '<td>' + a["answer_description"] + '</td>'
-                    out += '</tr>'
-                    j += 1
-                out += '</table>'
-            elif q["question_type"] == 2:
-                # MCMA
-                out += '<table border="1" cellspacing="0" cellpadding="5">'
-                for a in q["answers"]:
-                    out += '<tr>'
-                    out += '<td width="30" height="20" align="right">' + str(j) + '.</td>'
-
-                    # user
-                    out += '<td width="25"'
-                    # odgovor je točan
-                    if a["answer_isright"]:
-                        # user nije odabrao ovaj odgovor (0)
-                        if a["logansw_selected"] == 0:
-                            out += 'bgcolor="#FFA0A0" align="center">'
-                        # user ili nije odgovorio (-1) ili je označio neki drugi odgovor (0)
-                        elif a["logansw_selected"] == 1:
-                            out += 'bgcolor="#A0FFA0" align="center"><b>x</b>'
-                        # user nije odgovorio
-                        else:
-                            out += '>'
-                    else:
-                        # user je označio ovaj odgovor (1)
-                        if a["logansw_selected"] == 1:
-                            out += u'bgcolor="#FFA0A0" align="center"><b>x</b>'
-                        # user nije označio ovaj odgovor (-1 ili 0)
-                        else:
-                            out += '>'
-                    out += '</td>'
-
-                    # test
-                    out += '<td width="25"'
-                    if a["answer_isright"]:
-                        out += u'bgcolor="#ADD8E6" align="center">●'
-                    else:
-                        out += '>'
-                    out += '</td>'
-
-                    out += '<td>' + a["answer_description"] + '</td>'
-                    out += '</tr>'
-                    j += 1
-                out += '</table>'
-
-            elif q["question_type"] == 3: # TEXT
-                correct = False
-                answer = ""
-                t = pyTCExamTest.Test(db=None)
-                for a in q["answers"]:
-                    answer = a["testlog_answer_text"]
-                    if t.checkTextAnswer(a["answer_description"], a["testlog_answer_text"]):
-                        correct = True
-                        break
-
-                if answer == None:
+                elif q["question_type"] == 3: # TEXT
+                    correct = False
                     answer = ""
+                    t = pyTCExamTest.Test(db=None)
+                    for a in q["answers"]:
+                        answer = a["testlog_answer_text"]
+                        if t.checkTextAnswer(a["answer_description"], a["testlog_answer_text"]):
+                            correct = True
+                            break
 
-                out += '<span'
-                if correct:
-                    out += ' style="background-color: #A0FFA0"'
-                else:
-                    out += ' style="background-color: #FFA0A0"'
-                out += '>' + answer + '</span>'
+                    if answer == None:
+                        answer = ""
 
-
-            elif q["question_type"] == 4: # ORDER
-                out += '<table border="1" cellspacing="0" cellpadding="5">'
-                for a in q["answers"]:
-                    out += '<tr>'
-                    out += '<td width="30" height="20" align="right">' + str(j) + '.</td>'
-
-                    # user
-                    out += '<td width="25"'
-                    if a["logansw_selected"] > 0:
-                        # točan odgovor
-                        if a["logansw_position"] == a["answer_position"]:
-                            out += 'bgcolor="#A0FFA0"'
-                        #pogrešan odgovor
-                        else:
-                            out += 'bgcolor="#FFA0A0"'
-                        out += ' align="center">' + str(a["logansw_position"])
-                    # bez odgovora
+                    out += '<span'
+                    if correct:
+                        out += ' style="background-color: #A0FFA0"'
                     else:
-                        out += '>'
-                    out += '</td>'
-
-                    # test
-                    out += '<td width="25" bgcolor="#ADD8E6" align="center">'
-                    out += str(a["answer_position"])
-                    out += '</td>'
+                        out += ' style="background-color: #FFA0A0"'
+                    out += '>' + answer + '</span>'
 
 
-                    out += '</tr>'
-                    j += 1
+                elif q["question_type"] == 4: # ORDER
+                    out += '<table border="1" cellspacing="0" cellpadding="5">'
+                    for a in q["answers"]:
+                        out += '<tr>'
+                        out += '<td width="30" height="20" align="right">' + str(j) + '.</td>'
 
-                out += '</table>'
+                        # user
+                        out += '<td width="25"'
+                        if a["logansw_selected"] > 0:
+                            # točan odgovor
+                            if a["logansw_position"] == a["answer_position"]:
+                                out += 'bgcolor="#A0FFA0"'
+                            #pogrešan odgovor
+                            else:
+                                out += 'bgcolor="#FFA0A0"'
+                            out += ' align="center">' + str(a["logansw_position"])
+                        # bez odgovora
+                        else:
+                            out += '>'
+                        out += '</td>'
 
-            # end div za pitanje + odgovore
-            out += '</div><br>'
+                        # test
+                        out += '<td width="25" bgcolor="#ADD8E6" align="center">'
+                        out += str(a["answer_position"])
+                        out += '</td>'
 
-            # povećaj brojač pitanja
-            i += 1
 
-        out += '</table>'
+                        out += '</tr>'
+                        j += 1
 
-        out += '</div><br><br><br>'
-        out += '<hr>'
-        out += '<div>'
-        out += '<b>Legenda:</b><br />'
-        out += u'<span style="background-color: #A0FFA0">Zelenom bojom</span> je označen <b>točan</b> odgovor ispitanika.<br />'
-        out += u'<span style="background-color: #FFA0A0">Crvenom bojom</span> je označen <b>netočan</b> odgovor ispitanika.<br />'
-        out += u'<span style="background-color: #ADD8E6">Plavom bojom</span> je označen točan odgovor.<br />'
-        out += '</div>'
+                    out += '</table>'
+
+                # end div za pitanje + odgovore
+                out += '</div><br>'
+
+                # povećaj brojač pitanja
+                i += 1
+
+            out += '</table>'
+
+            out += '</div><br><br><br>'
+            out += '<hr>'
+            out += '<div>'
+            out += '<b>Legenda:</b><br />'
+            out += u'<span style="background-color: #A0FFA0">Zelenom bojom</span> je označen <b>točan</b> odgovor ispitanika.<br />'
+            out += u'<span style="background-color: #FFA0A0">Crvenom bojom</span> je označen <b>netočan</b> odgovor ispitanika.<br />'
+            out += u'<span style="background-color: #ADD8E6">Plavom bojom</span> je označen točan odgovor.<br />'
+            out += '</div>'
 
         self.htmlWindowTestReport.SetPage(out)
 

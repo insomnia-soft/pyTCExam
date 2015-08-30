@@ -164,7 +164,8 @@ class PanelTestList(wx.Panel):
             elif self.__tests[self.selectedTestId]['status'] >= 4 and self.__tests[self.selectedTestId]['test_repeatable'] == 1:
                 self.buttonRepeatTest.Enable()
 
-        if self.__tests[self.selectedTestId]['status'] >= 4:
+        # if
+        if self.__tests[self.selectedTestId]["status"] >= 4 and self.__tests[self.selectedTestId]['test_results_to_users']:
             self.buttonTestReport.Enable()
 
         for name in self.infoTextNames:

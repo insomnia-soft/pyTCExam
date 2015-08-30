@@ -72,6 +72,8 @@ class PanelLogin(wx.Panel):
         self.textCtrlPassword.SetLabel(label="")
         self.staticTextMessage.SetLabel(label="")
         self.staticTextMessage.Hide()
+        # self.textCtrlUsername.SetValue("ihorvat")
+        # self.textCtrlPassword.SetValue("12345678")
         self.Layout()
 
 

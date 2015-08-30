@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# todo
-#   gumbi se trebaju zvati sa IDom pitanja
-#   ostale opcije testa (checkbox za MCMA, ...)
-#   test report - bodovi
-#   ako komentar nije enablean, ...
-
-
 import wx
 import pyTCExam
 import pyTCExamConf
@@ -32,17 +25,17 @@ class FrameMain(wx.Frame):
         wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP)
 
         # no always on top
-        # wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE, size=(1000, 800))
+        # wx.Frame.__init__(self, parent=parent, id=wx.NewId(), title='pyTCExam', style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE, size=(1000, 800))
 
         # configuration
         conf = pyTCExamConf.pyTCExamConf()
 
         # database object
-        self.db = pyTCExamMySQL.DbMySQL(conf.getDbHost(),
-                                        conf.getDbPort(),
-                                        conf.getDbUser(),
-                                        conf.getDbPassword(),
-                                        conf.getDbName())
+        self.db = pyTCExamMySQL.DbMySQL(host=conf.getDbHost(),
+                                        port=conf.getDbPort(),
+                                        username=conf.getDbUser(),
+                                        password=conf.getDbPassword(),
+                                        database=conf.getDbName())
 
         # check if connection with database exists, if not, notify user and close app
         if self.db.isConnected() == False:

@@ -49,72 +49,82 @@ class TestList:
         rows = self.__db.fetchAllRows()
 
         for row in rows:
-            currentTest = {}
-            testExpired = False
-            testId = int(row['test_id'])
-            testDuration = int(row['test_duration_time'])
-            testEndTime = row['test_end_time']
-            testResultToUser = int(row['test_results_to_users'])
+            if self.__currentUserTest(row["test_id"], self.__userId) > 0:
+                currentTest = {}
+                testExpired = False
+                testId = int(row['test_id'])
+                testDuration = int(row['test_duration_time'])
+                testEndTime = row['test_end_time']
+                testResultToUser = int(row['test_results_to_users'])
 
-            currentTest['test_name'] = row['test_name']
-            currentTest['test_description'] = row['test_description']
-            currentTest['test_begin_time'] = row['test_begin_time']
-            currentTest['test_end_time'] = row['test_end_time']
-            currentTest['test_duration_time'] = row['test_duration_time']
-            currentTest['test_score_right'] = row['test_score_right']
-            currentTest['test_score_wrong'] = row['test_score_wrong']
-            currentTest['test_score_unanswered'] = row['test_score_unanswered']
-            currentTest['test_max_score'] = row['test_max_score']
-            currentTest['test_score_threshold'] = row['test_score_threshold']
-            currentTest['test_results_to_users'] = row['test_results_to_users']
-            currentTest['test_report_to_users'] = row['test_report_to_users']
-            currentTest['test_repeatable'] = row['test_repeatable']
-            currentTest['test_password'] = row['test_password']
-            currentTest['status'] = 0
-            currentTest['status_msg'] = ""
-            currentTest['status_color'] = 0
-            currentTest['expired'] = False
-            # TCExam legal values are:
-            # 0 = the test generation process is started but not completed;
-            # 1 = the test has been successfully created;
-            # 2 = all questions have been displayed to the user;
-            # 3 = all questions have been answered;
-            # 4 = test locked (for timeout);
-            t = pyTCExamTest.Test(self.__db)
-            testStatus, testUserId = t.checkTestStatus(self.__userId, testId, testDuration)
-            currentTest['status'] = testStatus
-            if currentTime > testEndTime:
-                currentTest['status_color'] = 4
-                currentTest['expired'] = True
-                currentTest['status_msg'] = u"Rok za rješavanje ispita je istekao"
-                testExpired = True
+                currentTest['test_name'] = row['test_name']
+                currentTest['test_description'] = row['test_description']
+                currentTest['test_begin_time'] = row['test_begin_time']
+                currentTest['test_end_time'] = row['test_end_time']
+                currentTest['test_duration_time'] = row['test_duration_time']
+                currentTest['test_score_right'] = row['test_score_right']
+                currentTest['test_score_wrong'] = row['test_score_wrong']
+                currentTest['test_score_unanswered'] = row['test_score_unanswered']
+                currentTest['test_max_score'] = row['test_max_score']
+                currentTest['test_score_threshold'] = row['test_score_threshold']
+                currentTest['test_results_to_users'] = row['test_results_to_users']
+                currentTest['test_report_to_users'] = row['test_report_to_users']
+                currentTest['test_repeatable'] = row['test_repeatable']
+                currentTest['test_password'] = row['test_password']
+                currentTest['status'] = 0
+                currentTest['status_msg'] = ""
+                currentTest['status_color'] = 0
+                currentTest['expired'] = False
+                # TCExam legal values are:
+                # 0 = the test generation process is started but not completed;
+                # 1 = the test has been successfully created;
+                # 2 = all questions have been displayed to the user;
+                # 3 = all questions have been answered;
+                # 4 = test locked (for timeout);
+                t = pyTCExamTest.Test(self.__db)
+                testStatus, testUserId = t.checkTestStatus(self.__userId, testId, testDuration)
+                currentTest['status'] = testStatus
+                if currentTime > testEndTime:
+                    currentTest['status_color'] = 4
+                    currentTest['expired'] = True
+                    #currentTest['status_msg'] = u"Rok za rješavanje ispita je istekao"
+                    testExpired = True
 
-            # status ispita
-            if testStatus == 0:
-                currentTest['status_msg'] = u"Ispit je omogućen za rješavanje"
-            elif testStatus == 1 or testStatus == 2 or testStatus == 3:
-                currentTest['status_msg'] = u"Ispit je moguće nastaviti rješavati"
-            elif testStatus >= 4 and testResultToUser:
-                userTestData = self.__getUserTestStat(testId, self.__userId, testUserId)
-                passMsg = ""
-
-                if userTestData.has_key('user_score') and userTestData.has_key('test_score_threshold') and userTestData['test_score_threshold'] > 0:
-                    if userTestData['user_score'] >= userTestData['test_score_threshold']:
-                        passMsg = " - prolaz"
-                        currentTest['status_color'] = 1
+                if testStatus == 0:
+                    if testExpired == False:
+                        currentTest['status_msg'] = u"Ispit je omogućen za rješavanje"
                     else:
-                        passMsg = " - pad"
-                        currentTest['status_color'] = 2
-
-                if userTestData.has_key('user_score'):
-                    if userTestData['test_max_score'] > 0:
-                        passMsg = str(userTestData['user_score']) + " / " + str(userTestData['test_max_score']) + " (" + str(round((userTestData['user_score'] / userTestData['test_max_score']) * 100, 0)) + ")" + u" - ispit je riješen" + passMsg
+                        currentTest['status_msg'] = u"Rok za rješavanje ispita je istekao"
+                elif testStatus == 1 or testStatus == 2 or testStatus == 3:
+                    if testExpired == False:
+                        currentTest['status_msg'] = u"Ispit je moguće nastaviti rješavati"
                     else:
-                        passMsg = str(userTestData['user_score']) + passMsg
+                        currentTest['status_msg'] = u"Rok za rješavanje ispita je istekao"
+                elif testStatus >= 4:
+                    if testResultToUser:
+                        userTestData = self.__getUserTestStat(testId, self.__userId, testUserId)
+                        passMsg = ""
 
-                currentTest['status_msg'] = passMsg
+                        if userTestData.has_key('user_score') and userTestData.has_key('test_score_threshold') and userTestData['test_score_threshold'] > 0:
+                            if userTestData['user_score'] >= userTestData['test_score_threshold']:
+                                passMsg = " - prolaz"
+                                currentTest['status_color'] = 1
+                            else:
+                                passMsg = " - pad"
+                                currentTest['status_color'] = 2
 
-            allTests[testId] = currentTest
+                        if userTestData.has_key('user_score'):
+                            if userTestData['test_max_score'] > 0:
+                                passMsg = str(userTestData['user_score']) + " / " + str(userTestData['test_max_score']) + " (" + str(round((userTestData['user_score'] / userTestData['test_max_score']) * 100, 0)) + "%)" + passMsg
+                            else:
+                                passMsg = str(userTestData['user_score']) + passMsg
+
+                        currentTest['status_msg'] = u"Ispit je riješen, broj bodova: " + passMsg
+                    else: # don't display results to user
+                        currentTest['status_msg'] = u"Ispit je riješen, rezultati nisu dostupni"
+
+                # add current test to dictionary
+                allTests[testId] = currentTest
 
         return allTests
 
@@ -184,3 +194,20 @@ class TestList:
                 data['user_comment'] = row['testuser_comment'];
 
         return data
+
+    #----------------------------------------------------------------------
+    def __currentUserTest(self, tstgrp_group_id, usrgrp_user_id):
+        sql = "SELECT"
+        sql += " COUNT(*) AS numrows"
+        sql += " FROM " + pyTCExamCommon.getTableName("USER_GROUPS") + ", " + pyTCExamCommon.getTableName("TABLE_TEST_GROUPS")
+        sql += " WHERE usrgrp_group_id=tstgrp_group_id"
+        sql += " AND tstgrp_test_id=%s"
+        sql += " AND usrgrp_user_id=%s"
+        sql += " LIMIT 1"
+        param = (tstgrp_group_id, usrgrp_user_id)
+        self.__db.query(sql, param)
+        row = self.__db.fetchOneRow()
+        if (row is not None):
+            return row["numrows"]
+
+        return 0
